@@ -31,9 +31,24 @@
             scene.add(cube);
             cube.position.set(0, 0, 0);
 
+            const sphereGeo = new THREE.SphereGeometry(0.5, 32, 32);
+            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+            scene.add(sphere);
+            sphere.position.set(-2.5, 0, 0);
+
+            const coneGeo = new THREE.ConeGeometry(0.5, 1, 32);
+            const coneMat = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+            const cone = new THREE.Mesh(coneGeo, coneMat);
+            scene.add(cone);
+            cone.position.set(2.5, 0, 0);
+
+
             function animate(time) {
                 cube.rotation.x = time / 1000;
                 cube.rotation.y = time / 1000;
+                sphere.position.y = Math.sin(time / 500) * 0.5;
+                cone.rotation.x = time / 1000;
                 renderer.render(scene, camera);
             }
             renderer.setAnimationLoop(animate);
