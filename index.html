@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CG Practical 1: Geometric Garden</title>
+        <style> body { margin: 0; overflow: hidden; } </style>
+        <script type="importmap">
+            { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+        </script>
+    </head>
+    <body>
+        <script type="module">
+            import * as THREE from 'three';
+            // --- BOILERPLATE SETUP ---
+            // 1. Create the Scene (The container)
+            const scene = new THREE.Scene();
+            // 2. Create the Camera (The Eye)
+            // Params: FOV, Aspect Ratio, Near Clip, Far Clip
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,
+            0.1, 1000);
+            // 3. Create the Renderer (The Painter)
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            // Move camera back on the Z-axis so we can see (0,0,0)
+            camera.position.z = 5;
+            // --- YOUR CODE GOES BELOW HERE ---
+            // TODO: Add your shapes and animation loop here...
+            const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
+            const cubeMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const cube = new THREE.Mesh(cubeGeo, cubeMat);
+            scene.add(cube);
+            cube.position.set(0, 0, 0);
+
+            function animate(time) {
+                cube.rotation.x = time / 1000;
+                cube.rotation.y = time / 1000;
+                renderer.render(scene, camera);
+            }
+            renderer.setAnimationLoop(animate);
+
+        </script>
+    </body>
+</html>
