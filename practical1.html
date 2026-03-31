@@ -26,19 +26,19 @@
             // --- YOUR CODE GOES BELOW HERE ---
             // TODO: Add your shapes and animation loop here...
             const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
-            const cubeMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const cubeMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
             const cube = new THREE.Mesh(cubeGeo, cubeMat);
             scene.add(cube);
             cube.position.set(0, 0, 0);
 
             const sphereGeo = new THREE.SphereGeometry(0.5, 32, 32);
-            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
             const sphere = new THREE.Mesh(sphereGeo, sphereMat);
             scene.add(sphere);
             sphere.position.set(-2.5, 0, 0);
 
             const coneGeo = new THREE.ConeGeometry(0.5, 1, 32);
-            const coneMat = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+            const coneMat = new THREE.MeshBasicMaterial({ color: 0x0000ff, wireframe: true });
             const cone = new THREE.Mesh(coneGeo, coneMat);
             scene.add(cone);
             cone.position.set(2.5, 0, 0);
@@ -47,8 +47,16 @@
             function animate(time) {
                 cube.rotation.x = time / 1000;
                 cube.rotation.y = time / 1000;
+                cube.scale.x = 1 + Math.sin(time / 500) * 0.5;
+                cube.scale.y = 1 + Math.sin(time / 500) * 0.5;
+                cube.scale.z = 1 + Math.sin(time / 500) * 0.5;
+                cube.material.color.setHSL((time / 1000) % 1, 1, 0.5);
                 sphere.position.y = Math.sin(time / 500) * 0.5;
-                cone.rotation.x = time / 1000;
+                sphere.material.color.setHSL(0, 1, 0.5 - Math.abs(Math.sin(time / 500) * 0.5));
+                cone.rotation.x = time / 872;
+                cone.rotation.y = time / 1234;
+                cone.rotation.z = time / 537;
+                cone.scale.y = 1 + Math.sin(time / 100) * 0.75;
                 renderer.render(scene, camera);
             }
             renderer.setAnimationLoop(animate);
