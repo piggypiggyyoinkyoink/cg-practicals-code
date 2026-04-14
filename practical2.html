@@ -47,22 +47,46 @@
             turretGroup.add(barrel);
             renderer.render(scene, camera);
             tankGroup.rotation.y = (Math.PI/2)
+
+            function kapow(){
+                const bulletGeo = new THREE.SphereGeometry(0.1, 16, 16);
+                const bulletMat = new THREE.MeshBasicMaterial({ color: 0xff0000});
+                const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+                const xdisp = Math.sin(tankGroup.rotation.y + turretGroup.rotation.y)
+                const zdisp = Math.cos(tankGroup.rotation.y + turretGroup.rotation.y)
+                bullet.position.set(
+                    tankGroup.position.x + xdisp * 2,
+                    1,
+                    tankGroup.position.z + zdisp * 2
+                );
+                scene.add(bullet);
+                const bulletSpeed = 0.2;
+                function moveBullet() {
+                    bullet.position.x += xdisp * bulletSpeed;
+                    bullet.position.z += zdisp * bulletSpeed;
+                    if (bullet.position.x < -10 || bullet.position.x > 10 || bullet.position.z < -10 || bullet.position.z > 10) {
+                        scene.remove(bullet);
+                    } else {
+                        requestAnimationFrame(moveBullet);
+                    }
+                }
+                requestAnimationFrame(moveBullet);
+            }
+
+
             let keysDown = new Set();
+
             window.addEventListener("keydown", (event) => {
                 if (event.key === "a") {
                     keysDown.add("a");
-                    // tankGroup.rotation.y += 0.1;
                 } if (event.key === "d") {
                     keysDown.add("d");
-                    // tankGroup.rotation.y -= 0.1;
                 } if (event.key === "w") {
                     keysDown.add("w");
-                    // tankGroup.position.x += Math.sin(tankGroup.rotation.y) * 0.1;
-                    // tankGroup.position.z += Math.cos(tankGroup.rotation.y) * 0.1;
                 } if (event.key === "s") {
                     keysDown.add("s");
-                    // tankGroup.position.x -= Math.sin(tankGroup.rotation.y) * 0.1;
-                    // tankGroup.position.z -= Math.cos(tankGroup.rotation.y) * 0.1;
+                } if (event.key === " ") {
+                    kapow();
                 }
             });
             window.addEventListener("keyup", (event) => {
