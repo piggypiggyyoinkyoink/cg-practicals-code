@@ -119,6 +119,8 @@
                     tankGroup.position.z -= Math.cos(tankGroup.rotation.y) * 0.05;
                 }
                 turretGroup.rotation.y = Math.sin(time * 2) * 0.5;
+                camera.position.set(tankGroup.position.x - 7 * Math.sin(tankGroup.rotation.y), tankGroup.position.y + 4, tankGroup.position.z - 7 * Math.cos(tankGroup.rotation.y));
+                camera.lookAt(tankGroup.position.x, tankGroup.position.y, tankGroup.position.z);
                 requestAnimationFrame(animate);
                 renderer.render(scene, camera);
             }
