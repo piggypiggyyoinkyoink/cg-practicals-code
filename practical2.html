@@ -47,16 +47,53 @@
             turretGroup.add(barrel);
             renderer.render(scene, camera);
             tankGroup.rotation.y = (Math.PI/2)
+            let keysDown = new Set();
+            window.addEventListener("keydown", (event) => {
+                if (event.key === "a") {
+                    keysDown.add("a");
+                    // tankGroup.rotation.y += 0.1;
+                } if (event.key === "d") {
+                    keysDown.add("d");
+                    // tankGroup.rotation.y -= 0.1;
+                } if (event.key === "w") {
+                    keysDown.add("w");
+                    // tankGroup.position.x += Math.sin(tankGroup.rotation.y) * 0.1;
+                    // tankGroup.position.z += Math.cos(tankGroup.rotation.y) * 0.1;
+                } if (event.key === "s") {
+                    keysDown.add("s");
+                    // tankGroup.position.x -= Math.sin(tankGroup.rotation.y) * 0.1;
+                    // tankGroup.position.z -= Math.cos(tankGroup.rotation.y) * 0.1;
+                }
+            });
+            window.addEventListener("keyup", (event) => {
+                if (event.key === "a") {
+                    keysDown.delete("a");
+                } if (event.key === "d") {
+                    keysDown.delete("d");
+                } if (event.key === "w") {
+                    keysDown.delete("w");
+                } if (event.key === "s") {
+                    keysDown.delete("s");
+                }
+            });
+            window.addEventListener("resize", () => {
+                camera.aspect = window.innerWidth/window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
             function animate(time) {
                 time *= 0.001;
-                // 1. Drive in a circle (radius 5)
-                tankGroup.position.x = Math.sin(time/2) * 5;
-                tankGroup.position.z = Math.cos(time/2) * 5;
-                // 2. Face direction of travel
-                // The tank should always face the tangent of the circle
-                tankGroup.rotation.y = time/2 + Math.PI/2; // +90 degrees to face forward
-                // 3. Turret Scanning
-                // Independent rotation on top of the body rotation
+                if (keysDown.has("a") && !keysDown.has("d")){
+                    tankGroup.rotation.y += 0.033;
+                } if (keysDown.has("d") && !keysDown.has("a")){ 
+                    tankGroup.rotation.y -= 0.033;
+                } if (keysDown.has("w") && !keysDown.has("s")) {
+                    tankGroup.position.x += Math.sin(tankGroup.rotation.y) * 0.05;
+                    tankGroup.position.z += Math.cos(tankGroup.rotation.y) * 0.05;
+                } if (keysDown.has("s") && !keysDown.has("w")) {
+                    tankGroup.position.x -= Math.sin(tankGroup.rotation.y) * 0.05;
+                    tankGroup.position.z -= Math.cos(tankGroup.rotation.y) * 0.05;
+                }
                 turretGroup.rotation.y = Math.sin(time * 2) * 0.5;
                 requestAnimationFrame(animate);
                 renderer.render(scene, camera);
