@@ -14,7 +14,7 @@
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,
             0.1, 1000);
-            camera.position.set(20,9,-14);
+            camera.position.set(20,9,10);
             camera.lookAt(0,6,0);
             // renderer setup
             const renderer = new THREE.WebGLRenderer();
@@ -99,7 +99,7 @@
             scene.add(galleryPart2);
 
             const lanternGeo = new THREE.CylinderGeometry(1, 1, 1.5, 32);
-            const lanternMat = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xffffff, shininess: 2000, opacity: 0.6, transparent: true });
+            const lanternMat = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xffffff, shininess: 2000, opacity: 0.4, transparent: true });
             const lantern = new THREE.Mesh(lanternGeo, lanternMat);
             lantern.position.y = towerHeight + 0.5+0.75;
             lantern.castShadow = true;
@@ -188,7 +188,7 @@
             const coneGeo = new THREE.CylinderGeometry(0.15,0.7, 0.14, 32,1 , true);
             const cone = new THREE.Mesh(coneGeo, beamMat);cone.rotation.x = Math.PI;
             beam.add(cone);
-            cone.position.set(0, -10.05, 0)
+            cone.position.set(0, -10.07, 0)
 
             const sun = new THREE.DirectionalLight(0xffffee, 0.7);
             sun.position.set(20, 0, 100);
@@ -229,12 +229,12 @@
 
                 requestAnimationFrame(animate);
                 // rotation of lighthouse beam
-                dingus.rotation.z = time / 1000;
+                dingus.rotation.z = time / 1500;
 
                 renderer.render(scene, camera);
 
                 // day/night cycle
-                let rotation = 1.5 * Math.PI + time / 5000 ;
+                let rotation = 1.5 * Math.PI + time / 7000 ;
                 // let rotation = 3;
                 if (rotation > 2 * Math.PI){
                     rotation = rotation % (2 * Math.PI);
