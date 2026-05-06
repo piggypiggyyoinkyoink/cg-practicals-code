@@ -1,12 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>CG Practical 3</title>
+        <title>Lighthouse</title>
         <style> body { margin: 0; overflow: hidden; } </style>
-        <!-- <div style = "position: fixed; bottom:0; right: 0;">
-            <input type="range" id="sun" min="0" max="2" step="0.05" value="1.5">
-            <p id = "p"></p>
-        </div> -->
         <script type="importmap">
             { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
         </script>
@@ -17,7 +13,7 @@
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,
             0.1, 1000);
-            camera.position.set(10,9,0);
+            camera.position.set(10,9,20);
             camera.lookAt(0,6,0);
 
             scene.background = new THREE.Color(0x87ceeb);
@@ -52,20 +48,20 @@
             scene.add(sea);
 
             const dingusGeo = new THREE.PlaneGeometry(1,1);
-            const dingus = new THREE.Mesh(dingusGeo, grassMat);
+            const invisMat = new THREE.MeshPhongMaterial({ color: 0xff0000, opacity: 0, specular: 0x1111ff, transparent: true });
+            const dingus = new THREE.Mesh(dingusGeo, invisMat);
             dingus.position.y = -1;
             dingus.rotation.x = -Math.PI/2;
             scene.add(dingus);
 
-            const borkus = new THREE.Mesh(dingusGeo, grassMat);
+            const borkus = new THREE.Mesh(dingusGeo, invisMat);
             borkus.position.y = -1;
             scene.add(borkus);
             
             const invisGeo = new THREE.SphereGeometry(1,1);
-            const invisMat = new THREE.MeshPhongMaterial({ color: 0xff0000, opacity: 0.8, specular: 0x1111ff, transparent: true });
             const invis = new THREE.Mesh(invisGeo, invisMat);
-            invis.position.set(30, 30, -1);
             dingus.add(invis);
+            invis.position.set(80, 0, -1);
             
             const ambientLight = new THREE.AmbientLight(0x222222);
             scene.add(ambientLight);
@@ -101,39 +97,20 @@
             const topGeo1 = new THREE.CylinderGeometry(1.5, 1.5, 0.1, 32);
             const top1 = new THREE.Mesh(topGeo1, cylinderMat);
             top1.position.y = towerHeight + 0.5+0.05+1.5;
+            top1.castShadow = true;
             scene.add(top1);
 
             const topGeo2 = new THREE.CylinderGeometry(0.5, 1.5, 0.5, 32);
             const top2 = new THREE.Mesh(topGeo2, cylinderMat);
             top2.position.y = towerHeight + 0.5+0.1+1.5+0.25;
+            top2.castShadow = true;
             scene.add(top2);
 
             const topperGeo = new THREE.SphereGeometry(0.5, 32, 32);
             const topper = new THREE.Mesh(topperGeo, cylinderMat);
             topper.position.y = towerHeight + 0.5+0.1+1/5+1.5+0.25;
+            topper.castShadow = true;
             scene.add(topper);
-
-            const pointLight = new THREE.PointLight(0xffffaa, 1000, 1);
-            pointLight.position.set(1, 1, towerHeight + 0.5+0.75+1);
-            pointLight.castShadow = true;
-            dingus.add(pointLight);
-
-            const pointLight2 = new THREE.PointLight(0xffffaa, 1000, 1);
-            pointLight2.position.set(0.715, 0.715, towerHeight + 0.95 + 0.25+1);
-            pointLight2.castShadow = true;
-            dingus.add(pointLight2);
-
-            const pointLight3 = new THREE.PointLight(0xffffaa, 5, 2);
-            pointLight3.position.set(0, towerHeight + 0.5+0.75, 0);
-            pointLight3.castShadow = true;
-            scene.add(pointLight3);
-
-
-            const spotlight = new THREE.SpotLight(0xffffaa, 1000, 0, Math.PI / 12, 0.5);
-            spotlight.position.set(0.715, 0.715, towerHeight + 0.95 + 0.25+1);
-            spotlight.target = invis;
-            spotlight.castShadow = true;
-            dingus.add(spotlight);
 
             const lampGeo = new THREE.SphereGeometry(0.2, 16, 16);
             const lampMat = new THREE.MeshPhongMaterial({ color: 0xffff00, specular: 0xffffff, shininess: 1000 });
@@ -142,10 +119,62 @@
             lamp.castShadow = true;
             scene.add(lamp);
 
+
+
+            const pointLight = new THREE.PointLight(0xffffaa, 1000, 1);
+            pointLight.position.set(1.41, 0, towerHeight + 0.5+0.75+1);
+            pointLight.castShadow = true;
+            dingus.add(pointLight);
+
+            // const pointLightHelper = new THREE.PointLightHelper(pointLight);
+            // scene.add(pointLightHelper);
+
+            const pointLight2 = new THREE.PointLight(0xffffaa, 1000, 1);
+            pointLight2.position.set(0.75, 0, towerHeight + 0.95 + 0.25+1);
+            pointLight2.castShadow = true;
+            dingus.add(pointLight2);
+
+            // const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
+            // scene.add(pointLightHelper2);
+
+            const pointLight3 = new THREE.PointLight(0xffffaa, 5, 2);
+            pointLight3.position.set(0, towerHeight + 0.5+0.75, 0);
+            pointLight3.castShadow = true;
+            scene.add(pointLight3);
+
+            const spotlight = new THREE.SpotLight(0xffffaa, 1000, 0, Math.PI / 16, 0.5);
+            spotlight.position.set(1.01, 0, towerHeight + 0.95 + 0.25+1);
+            spotlight.target = invis;
+            spotlight.castShadow = true;
+            dingus.add(spotlight);
+            
+            // const spotlightHelper = new THREE.SpotLightHelper( spotlight );
+            // scene.add( spotlightHelper );
+
+            const beamGeo = new THREE.CylinderGeometry(25, 0.7, 20, 32, 1, true);
+            const beamMat = new THREE.MeshBasicMaterial({ color: 0xffffaa, opacity: 0.2, transparent: true, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+            const beam = new THREE.Mesh(beamGeo, beamMat);
+            spotlight.add(beam);
+            
+            let spotlightPos = new THREE.Vector3();
+            spotlight.getWorldPosition(spotlightPos);
+            let targetPos = new THREE.Vector3();
+            invis.getWorldPosition(targetPos);
+            const beamLength = spotlightPos.distanceTo(targetPos)*2;
+            beam.rotation.z = 3*Math.PI / 2;
+            let a = Math.atan(Math.abs(targetPos.y - spotlightPos.y) / Math.abs(targetPos.x - spotlightPos.x));
+            beam.rotation.y = a;
+            beam.scale.set(1, beamLength / 20, 1);
+            beam.position.set(beamLength/2 - 0.75, 0, - beamLength * Math.sin(a)/2 + 0.06);
+
+
+
             const sun = new THREE.DirectionalLight(0xffffee, 0.7);
-            sun.position.set(10, 0, 10);
+            sun.position.set(20, 0, 100);
             sun.castShadow = true;
             borkus.add(sun);
+
+
 
             window.addEventListener("resize", () => {
                 camera.aspect = window.innerWidth/window.innerHeight;
@@ -159,6 +188,8 @@
                 pointLight3.intensity = 0;
                 spotlight.intensity = 0;
                 lamp.material.color.set(0x000000);
+                // beam.material.opacity = 0;
+                beam.visible = false;
             }
 
             function lightsOn(){
@@ -167,42 +198,21 @@
                 pointLight3.intensity = 5;
                 spotlight.intensity = 1000;
                 lamp.material.color.set(0xffff00);
+                // beam.material.opacity = 0.2;
+                beam.visible = true;
             }
 
-            // document.addEventListener("input", (event) => {
-            //     if (event.target.id === "sun") {
-            //         borkus.rotation.x = event.target.value * Math.PI;
-            //         if (event.target.value <= 1 | event.target.value == 2){
-            //             sun.intensity = 0;
-            //             scene.background = new THREE.Color(0x87ceeb).offsetHSL(0, 0, -0.5 * (1 +0.05));
-
-            //         } else {
-            //             let v = event.target.value;
-            //             let i = (2-((Math.abs(1.5-(1.1*(2.4*parseFloat(v)-2.25))))**4))/2;
-            //             document.getElementById("p").textContent = "Intensity: \n" + i.toFixed(2);
-            //             sun.intensity = i;
-            //             scene.background = new THREE.Color(0x87ceeb).offsetHSL(0, 0, -0.5 * (1 - i));
-            //         }
-            //         if (sun.intensity < 0.5){
-            //             lightsOn();
-            //         } else{
-            //             lightsOut();
-            //         }
-            //     }
-            // }); 
 
             borkus.rotation.x = 1.5 * Math.PI;
             lightsOut();
-            // let v = document.getElementById("sun").value;
-            // let i = (2-((Math.abs(1.5-(1.1*(2.4*parseFloat(v)-2.25))))**4))/2;
-            // document.getElementById("p").textContent = "Intensity: \n" + i.toFixed(2);
-            // sun.intensity = i;
 
             function animate(time) {
+
                 requestAnimationFrame(animate);
                 dingus.rotation.z = time / 1000;
                 renderer.render(scene, camera);
                 let rotation = 1.5 * Math.PI + time / 5000 ;
+                // let rotation = 3;
                 if (rotation > 2 * Math.PI){
                     rotation = rotation % (2 * Math.PI);
                 }
