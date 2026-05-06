@@ -185,7 +185,7 @@
             beam.position.set(beamLength/2 - 0.75, 0, - beamLength * Math.sin(a)/2 + 0.06);
 
             // "cone" from bulb to start of bem so that the beam isnt just floating in midair
-            const coneGeo = new THREE.CylinderGeometry(0.15,0.7, 0.14, 32);
+            const coneGeo = new THREE.CylinderGeometry(0.15,0.7, 0.14, 32,1 , true);
             const cone = new THREE.Mesh(coneGeo, beamMat);cone.rotation.x = Math.PI;
             beam.add(cone);
             cone.position.set(0, -10.05, 0)
