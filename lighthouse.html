@@ -244,7 +244,8 @@
                 let val = rotation / Math.PI;
                 if (val <= 1 | val == 2){
                     // set sun intensity to 0 at night
-                        sun.intensity = 0;
+                    sun.intensity = 0;
+                    scene.background = new THREE.Color(0x87ceeb).offsetHSL(0, 0, -0.6);
 
                 } else {
                     // funky ahh formula for light intensity changes

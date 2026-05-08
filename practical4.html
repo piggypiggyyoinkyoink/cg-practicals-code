@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CG Practical 4</title>
+        <style> body { margin: 0; overflow: hidden; } </style>
+        <script type="importmap">
+            { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+        </script>
+    </head>
+    <body>
+        <script type="module">
+            import * as THREE from 'three';
+            // --- BOILERPLATE SETUP ---
+            // 1. Create the Scene (The container)
+            const scene = new THREE.Scene();
+            // 2. Create the Camera (The Eye)
+            // Params: FOV, Aspect Ratio, Near Clip, Far Clip
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,
+            0.1, 1000);
+            // 3. Create the Renderer (The Painter)
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            camera.position.set(0,0,20);
+            camera.lookAt(0,0,0);
+            // --- YOUR CODE GOES BELOW HERE ---
+            
+            const planetGeo = new THREE.SphereGeometry(5, 64, 32);
+            const planetMat = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+            const planet = new THREE.Mesh(planetGeo, planetMat);
+            scene.add(planet);
+
+            const light = new THREE.DirectionalLight(0xffffff, 10);
+            light.position.set(10, 20, 15);
+            scene.add(light);
+
+            const satelliteGroup = new THREE.Group();
+            scene.add(satelliteGroup);
+            
+            const satelliteGeo = new THREE.BoxGeometry(1, 3, 2);
+            const satelliteMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+            const satellite = new THREE.Mesh(satelliteGeo, satelliteMat);
+            satelliteGroup.add(satellite);
+            satellite.position.set(-10, 0, 0);
+            
+            const antennaGroup = new THREE.Group();
+            satellite.add(antennaGroup);
+
+            const antennaGeo = new THREE.CylinderGeometry(0.1, 0.9, 0.5, 16);
+            const antennaMat = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+            const antenna = new THREE.Mesh(antennaGeo, antennaMat);
+            antennaGroup.add(antenna);
+            antenna.rotation.z = Math.PI / 2;
+            antenna.position.set(0.75, 0, 0);
+
+            const moonGeo = new THREE.SphereGeometry(2, 32, 32);
+            const moonMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+            const moon = new THREE.Mesh(moonGeo, moonMat);
+            planet.add(moon);
+            moon.position.set(15, 0, 0);
+
+            const satelliteLight = new THREE.PointLight(0xffffff, 5, 10);
+            satelliteLight.position.set(-0.51, 0, 0);
+            satellite.add(satelliteLight);
+
+            let keysDown = new Set();
+            window.addEventListener("keydown", (event) => {
+                if (event.key === "w") {
+                    keysDown.add("w");
+                } if (event.key === "s") {
+                    keysDown.add("s");
+                }
+            });
+            window.addEventListener("keyup", (event) => {
+                if (event.key === "w") {
+                    keysDown.delete("w");
+                } if (event.key === "s") {
+                    keysDown.delete("s");
+                }
+            });
+
+            function animate(time) {
+                planet.position.set(0,0,0);
+                time *= 0.001;
+                planet.rotation.y = time / 2;
+                moon.rotation.y = time * 2;
+                satelliteGroup.rotation.y = time*-1;
+                antennaGroup.rotation.y = Math.sin(time*3)*0.5;
+                if (keysDown.has("w")){
+                    satellite.rotation.z += 0.01;
+                } if (keysDown.has("s")){
+                    satellite.rotation.z -= 0.01;
+                }
+                camera.position.x = satellite.getWorldPosition(new THREE.Vector3()).x;
+                camera.lookAt(satellite.getWorldPosition(new THREE.Vector3()));
+
+                renderer.render(scene, camera);
+            }
+            renderer.setAnimationLoop(animate);
+
+            
+
+            window.addEventListener("resize", () => {
+                camera.aspect = window.innerWidth/window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        </script>
+    </body>
+</html>
