@@ -14,7 +14,7 @@
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,
             0.1, 1000);
-            camera.position.set(20,9,10);
+            camera.position.set(100,9,-30);
             camera.lookAt(0,6,0);
             // renderer setup
             const renderer = new THREE.WebGLRenderer();
@@ -63,146 +63,197 @@
             borkus.position.y = -1;
             scene.add(borkus);
             
+            // function to create lighthouse
+            function createLighthouse(){
+                const lighthouseGroup = new THREE.Group();
+                scene.add(lighthouseGroup);
+                
+                // main cylindrical tower of lighthouse
+                const towerHeight = 8;
+                const towerGeo = new THREE.CylinderGeometry(1, 1, towerHeight, 32);
+                const cylinderMat = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xffffff, shininess: 10 });
+                const tower = new THREE.Mesh(towerGeo, cylinderMat);
+                tower.position.y = towerHeight / 2 ;
+                tower.castShadow = true;
+                lighthouseGroup.add(tower);
+
+                const topGroup = new THREE.Group();
+                topGroup.position.y = towerHeight;
+                lighthouseGroup.add(topGroup);
+
+
+                // Group used to handle rotations of lighthouse beam
+                const dingus = new THREE.Group();
+                dingus.rotation.x = -Math.PI/2;
+                topGroup.add(dingus);
+
+                // invisible target object for lighthouse spotlight
+                const invisMat = new THREE.MeshPhongMaterial({ color: 0xff0000, opacity: 0, specular: 0x1111ff, transparent: true });
+                const invisGeo = new THREE.SphereGeometry(1,1);
+                const invis = new THREE.Mesh(invisGeo, invisMat);
+                dingus.add(invis);
+                invis.position.set(80, 0, -(towerHeight + 1));
+
+
+                // gallery and lantern room
+                const galleryGeo1 = new THREE.CylinderGeometry(1.5, 1, 0.2, 32);
+                const galleryPart = new THREE.Mesh(galleryGeo1, cylinderMat);
+                galleryPart.position.y = 0.1;
+                galleryPart.castShadow = true;
+                topGroup.add(galleryPart);
+
+                const galleryGeo2 = new THREE.CylinderGeometry(1.5, 1.5, 0.3, 32);
+                const galleryPart2 = new THREE.Mesh(galleryGeo2, cylinderMat);
+                galleryPart2.position.y = 0.35;
+                galleryPart2.castShadow = true;
+                topGroup.add(galleryPart2);
+
+                const lanternGeo = new THREE.CylinderGeometry(1, 1, 1.5, 32);
+                const lanternMat = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xffffff, shininess: 2000, opacity: 0.4, transparent: true });
+                const lantern = new THREE.Mesh(lanternGeo, lanternMat);
+                lantern.position.y = 0.5+0.75;
+                lantern.castShadow = true;
+                topGroup.add(lantern);
+
+                // top of lantern room and roof
+                const topGeo1 = new THREE.CylinderGeometry(1.5, 1.5, 0.1, 32);
+                const top1 = new THREE.Mesh(topGeo1, cylinderMat);
+                top1.position.y = 0.5+0.05+1.5;
+                top1.castShadow = true;
+                topGroup.add(top1);
+
+                const topGeo2 = new THREE.CylinderGeometry(0.5, 1.5, 0.5, 32);
+                const top2 = new THREE.Mesh(topGeo2, cylinderMat);
+                top2.position.y = 0.5+0.1+1.5+0.25;
+                top2.castShadow = true;
+                topGroup.add(top2);
+
+                const topperGeo = new THREE.SphereGeometry(0.5, 32, 32);
+                const topper = new THREE.Mesh(topperGeo, cylinderMat);
+                topper.position.y = 0.5+0.1+1/5+1.5+0.25;
+                topper.castShadow = true;
+                topGroup.add(topper);
+
+                // light bulb thingy in lantern room
+                const lampGeo = new THREE.SphereGeometry(0.2, 16, 16);
+                const lampMat = new THREE.MeshPhongMaterial({ color: 0xffff00, specular: 0xffffff, shininess: 1000 });
+                const lamp = new THREE.Mesh(lampGeo, lampMat);
+                lamp.position.set(0, 0.5 + 0.95, 0);
+                lamp.castShadow = true;
+                topGroup.add(lamp);
+
+
+                // point light to make the exterior of the lantern glow where the beam passes through it
+                const pointLight = new THREE.PointLight(0xffffaa, 1000, 1, 900);
+                pointLight.position.set(1.41, 0, 0.5+0.75);
+                pointLight.castShadow = true;
+                dingus.add(pointLight);
+
+                // const pointLightHelper = new THREE.PointLightHelper(pointLight);
+                // scene.add(pointLightHelper);
+
+                // point light to illuminate the bulb on the side where the beam is
+                const pointLight2 = new THREE.PointLight(0xffffaa, 1000, 1);
+                pointLight2.position.set(0.75, 0, 0.95 + 0.25+1.15-1);
+                pointLight2.castShadow = true;
+                dingus.add(pointLight2);
+
+                // const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
+                // scene.add(pointLightHelper2);
+
+                // point light to illuminate the whole lantern room
+                const pointLight3 = new THREE.PointLight(0xffffaa, 5, 2);
+                pointLight3.position.set(0, 0.5+0.75, 0);
+                pointLight3.castShadow = true;
+                topGroup.add(pointLight3);
+
+                // lighthouse spotlight
+                const spotlight = new THREE.SpotLight(0xffffaa, 1000, 0, Math.PI / 16, 0.5);
+                spotlight.position.set(1.01, 0, 0.95 + 0.25);
+                spotlight.target = invis;
+                spotlight.castShadow = true;
+                dingus.add(spotlight);
+
+                // const spotlightHelper = new THREE.SpotLightHelper( spotlight );
+                // scene.add( spotlightHelper );
+
+                // beam of light cutting through the sky
+                const beamGeo = new THREE.CylinderGeometry(25, 0.7, 20, 32, 1, true);
+                const beamMat = new THREE.MeshBasicMaterial({ color: 0xffffaa, opacity: 0.2, transparent: true, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+                const beam = new THREE.Mesh(beamGeo, beamMat);
+                spotlight.add(beam);
+                // math to calculate correct angle and position of beam cone
+                let spotlightPos = new THREE.Vector3();
+                spotlight.getWorldPosition(spotlightPos);
+                let targetPos = new THREE.Vector3();
+                invis.getWorldPosition(targetPos);
+                const beamLength = spotlightPos.distanceTo(targetPos)*2;
+                beam.rotation.z = 3*Math.PI / 2;
+                let a = Math.atan(Math.abs(targetPos.y - spotlightPos.y) / Math.abs(targetPos.x - spotlightPos.x));
+                beam.rotation.y = a;
+                beam.scale.set(1, beamLength / 20, 1);
+                beam.position.set(beamLength/2 - 0.55, 0, - beamLength * Math.sin(a)/2 + 0.06);
+
+                // "cone" from bulb to start of bem so that the beam isnt just floating in midair
+                const coneGeo = new THREE.CylinderGeometry(0.15,0.7, 0.14, 32,1 , true);
+                const cone = new THREE.Mesh(coneGeo, beamMat);cone.rotation.x = Math.PI;
+                beam.add(cone);
+                cone.position.set(0, -10.07, 0);
+                const lights = [[pointLight, pointLight2, pointLight3, spotlight], lamp, beam];
+                return [lighthouseGroup, lights, dingus];
+            }
             
-            const lighthouseGroup = new THREE.Group();
-            scene.add(lighthouseGroup);
-            
-            // main cylindrical tower of lighthouse
-            const towerHeight = 8;
-            const towerGeo = new THREE.CylinderGeometry(1, 1, towerHeight, 32);
-            const cylinderMat = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xffffff, shininess: 10 });
-            const tower = new THREE.Mesh(towerGeo, cylinderMat);
-            tower.position.y = towerHeight / 2 ;
-            tower.castShadow = true;
-            lighthouseGroup.add(tower);
+            class Lighthouse {
+                static list = [];
+                static lightsOut(){
+                    for (let lighthouse of Lighthouse.list){
+                        for (let light of lighthouse.lights[0]){
+                            light.intensity = 0;
+                        }
+                        lighthouse.lights[1].material.color.set(0x000000);
+                        lighthouse.lights[2].visible = false;
+                    }
+                }
+                static lightsOn(){
+                    for (let lighthouse of Lighthouse.list){
+                        for (let light of lighthouse.lights[0]){
+                            light.intensity = 1000;
+                        }
+                        lighthouse.lights[0][2].intensity = 5;
+                        lighthouse.lights[1].material.color.set(0xffff00);
+                        lighthouse.lights[2].visible = true;
+                    }
+                }
+                static animate(time){
+                    for (let lighthouse of Lighthouse.list){
+                        lighthouse.dingus.rotation.z = time * lighthouse.speed;
+                    }
+                }
+                constructor(){
+                    let [lighthouse, lights, dingus] = createLighthouse();
+                    this.lighthouse = lighthouse;
+                    this.lights = lights;
+                    this.dingus = dingus;
+                    this.speed = 2 * Math.PI / 10000;
+                    Lighthouse.list.push(this);
+                }
+            }
 
-            const topGroup = new THREE.Group();
-            topGroup.position.y = towerHeight;
-
-            // Group used to handle rotations of lighthouse beam
-            const dingus = new THREE.Group();
-            dingus.rotation.x = -Math.PI/2;
-            topGroup.add(dingus);
-
-            // invisible target object for lighthouse spotlight
-            const invisMat = new THREE.MeshPhongMaterial({ color: 0xff0000, opacity: 0, specular: 0x1111ff, transparent: true });
-            const invisGeo = new THREE.SphereGeometry(1,1);
-            const invis = new THREE.Mesh(invisGeo, invisMat);
-            dingus.add(invis);
-            invis.position.set(80, 0, -(towerHeight + 1));
-
-
-            // gallery and lantern room
-            const galleryGeo1 = new THREE.CylinderGeometry(1.5, 1, 0.2, 32);
-            const galleryPart = new THREE.Mesh(galleryGeo1, cylinderMat);
-            galleryPart.position.y = 0.1;
-            galleryPart.castShadow = true;
-            topGroup.add(galleryPart);
-
-            const galleryGeo2 = new THREE.CylinderGeometry(1.5, 1.5, 0.3, 32);
-            const galleryPart2 = new THREE.Mesh(galleryGeo2, cylinderMat);
-            galleryPart2.position.y = 0.35;
-            galleryPart2.castShadow = true;
-            topGroup.add(galleryPart2);
-
-            const lanternGeo = new THREE.CylinderGeometry(1, 1, 1.5, 32);
-            const lanternMat = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0xffffff, shininess: 2000, opacity: 0.4, transparent: true });
-            const lantern = new THREE.Mesh(lanternGeo, lanternMat);
-            lantern.position.y = 0.5+0.75;
-            lantern.castShadow = true;
-            topGroup.add(lantern);
-
-            // top of lantern room and roof
-            const topGeo1 = new THREE.CylinderGeometry(1.5, 1.5, 0.1, 32);
-            const top1 = new THREE.Mesh(topGeo1, cylinderMat);
-            top1.position.y = 0.5+0.05+1.5;
-            top1.castShadow = true;
-            topGroup.add(top1);
-
-            const topGeo2 = new THREE.CylinderGeometry(0.5, 1.5, 0.5, 32);
-            const top2 = new THREE.Mesh(topGeo2, cylinderMat);
-            top2.position.y = 0.5+0.1+1.5+0.25;
-            top2.castShadow = true;
-            topGroup.add(top2);
-
-            const topperGeo = new THREE.SphereGeometry(0.5, 32, 32);
-            const topper = new THREE.Mesh(topperGeo, cylinderMat);
-            topper.position.y = 0.5+0.1+1/5+1.5+0.25;
-            topper.castShadow = true;
-            topGroup.add(topper);
-
-            // light bulb thingy in lantern room
-            const lampGeo = new THREE.SphereGeometry(0.2, 16, 16);
-            const lampMat = new THREE.MeshPhongMaterial({ color: 0xffff00, specular: 0xffffff, shininess: 1000 });
-            const lamp = new THREE.Mesh(lampGeo, lampMat);
-            lamp.position.set(0, 0.5 + 0.95, 0);
-            lamp.castShadow = true;
-            topGroup.add(lamp);
-
-
-            // point light to make the exterior of the lantern glow where the beam passes through it
-            const pointLight = new THREE.PointLight(0xffffaa, 1000, 1, 900);
-            pointLight.position.set(1.41, 0, 0.5+0.75);
-            pointLight.castShadow = true;
-            dingus.add(pointLight);
-
-            // const pointLightHelper = new THREE.PointLightHelper(pointLight);
-            // scene.add(pointLightHelper);
-
-            // point light to illuminate the bulb on the side where the beam is
-            const pointLight2 = new THREE.PointLight(0xffffaa, 1000, 1);
-            pointLight2.position.set(0.75, 0, 0.95 + 0.25+1.15-1);
-            pointLight2.castShadow = true;
-            dingus.add(pointLight2);
-
-            // const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
-            // scene.add(pointLightHelper2);
-
-            // point light to illuminate the whole lantern room
-            const pointLight3 = new THREE.PointLight(0xffffaa, 5, 2);
-            pointLight3.position.set(0, 0.5+0.75, 0);
-            pointLight3.castShadow = true;
-            topGroup.add(pointLight3);
-
-            // lighthouse spotlight
-            const spotlight = new THREE.SpotLight(0xffffaa, 1000, 0, Math.PI / 16, 0.5);
-            spotlight.position.set(1.01, 0, 0.95 + 0.25);
-            spotlight.target = invis;
-            spotlight.castShadow = true;
-            dingus.add(spotlight);
-
-            // const spotlightHelper = new THREE.SpotLightHelper( spotlight );
-            // scene.add( spotlightHelper );
-
-            // beam of light cutting through the sky
-            const beamGeo = new THREE.CylinderGeometry(25, 0.7, 20, 32, 1, true);
-            const beamMat = new THREE.MeshBasicMaterial({ color: 0xffffaa, opacity: 0.2, transparent: true, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
-            const beam = new THREE.Mesh(beamGeo, beamMat);
-            spotlight.add(beam);
-            // math to calculate correct angle and position of beam cone
-            let spotlightPos = new THREE.Vector3();
-            spotlight.getWorldPosition(spotlightPos);
-            let targetPos = new THREE.Vector3();
-            invis.getWorldPosition(targetPos);
-            const beamLength = spotlightPos.distanceTo(targetPos)*2;
-            beam.rotation.z = 3*Math.PI / 2;
-            let a = Math.atan(Math.abs(targetPos.y - spotlightPos.y) / Math.abs(targetPos.x - spotlightPos.x));
-            beam.rotation.y = a;
-            beam.scale.set(1, beamLength / 20, 1);
-            beam.position.set(beamLength/2 - 0.55, 0, - beamLength * Math.sin(a)/2 + 0.06);
-
-            // "cone" from bulb to start of bem so that the beam isnt just floating in midair
-            const coneGeo = new THREE.CylinderGeometry(0.15,0.7, 0.14, 32,1 , true);
-            const cone = new THREE.Mesh(coneGeo, beamMat);cone.rotation.x = Math.PI;
-            beam.add(cone);
-            cone.position.set(0, -10.07, 0)
+            // const lighthouse = new Lighthouse();
+            // const lighthouse2 = new Lighthouse();
+            // lighthouse2.speed = 1/1000;
+            // lighthouse2.lighthouse.position.set(-50,0,0);
+            for (let i = 0; i < 4; i++){
+                let l = new Lighthouse();
+                l.lighthouse.position.set(-75 + i*75,0,0);
+                l.speed = 1/2000 + Math.random()/1000;
+            }
 
             const sun = new THREE.DirectionalLight(0xffffee, 0.7);
             sun.position.set(20, 0, 100);
             sun.castShadow = true;
             borkus.add(sun);
             
-            lighthouseGroup.add(topGroup);
             // handle window resizes
             window.addEventListener("resize", () => {
                 camera.aspect = window.innerWidth/window.innerHeight;
@@ -210,34 +261,16 @@
                 renderer.setSize(window.innerWidth, window.innerHeight);
             });
 
-            function lightsOut(){
-                pointLight.intensity = 0;
-                pointLight2.intensity = 0;
-                pointLight3.intensity = 0;
-                spotlight.intensity = 0;
-                lamp.material.color.set(0x000000);
-                beam.visible = false;
-            }
-
-            function lightsOn(){
-                pointLight.intensity = 1000;
-                pointLight2.intensity = 1000;
-                pointLight3.intensity = 5;
-                spotlight.intensity = 1000;
-                lamp.material.color.set(0xffff00);
-                beam.visible = true;
-            }
 
             // init
             borkus.rotation.x = 1.5 * Math.PI;
-            lightsOut();
+            Lighthouse.lightsOut();
 
             // animation loop
             function animate(time) {
-                // lighthouseGroup.rotation.x = 0.5;
                 requestAnimationFrame(animate);
                 // rotation of lighthouse beam
-                dingus.rotation.z = time / 1500;
+                Lighthouse.animate(time);
                 // dingus.rotation.z = Math.PI;
 
                 renderer.render(scene, camera);
@@ -274,10 +307,10 @@
                 }
                 if (sun.intensity < 0.5){
                     // turn on lighthouse light at night
-                    lightsOn();
+                    Lighthouse.lightsOn();
                 } else{
                     // turn off lighthouse light during day
-                    lightsOut();
+                    Lighthouse.lightsOut();
                 }
             }
             animate();
