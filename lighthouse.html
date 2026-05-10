@@ -146,7 +146,7 @@
                 // point light to make the exterior of the lantern glow where the beam passes through it
                 const pointLight = new THREE.PointLight(0xffffaa, 1000, 1, 900);
                 pointLight.position.set(1.41, 0, 0.5+0.75);
-                pointLight.castShadow = true;
+                // pointLight.castShadow = true;
                 dingus.add(pointLight);
 
                 // const pointLightHelper = new THREE.PointLightHelper(pointLight);
@@ -155,7 +155,7 @@
                 // point light to illuminate the bulb on the side where the beam is
                 const pointLight2 = new THREE.PointLight(0xffffaa, 1000, 1);
                 pointLight2.position.set(0.75, 0, 0.95 + 0.25+1.15-1);
-                pointLight2.castShadow = true;
+                // pointLight2.castShadow = true;
                 dingus.add(pointLight2);
 
                 // const pointLightHelper2 = new THREE.PointLightHelper(pointLight2);
@@ -164,14 +164,14 @@
                 // point light to illuminate the whole lantern room
                 const pointLight3 = new THREE.PointLight(0xffffaa, 5, 2);
                 pointLight3.position.set(0, 0.5+0.75, 0);
-                pointLight3.castShadow = true;
+                // pointLight3.castShadow = true;
                 topGroup.add(pointLight3);
 
                 // lighthouse spotlight
                 const spotlight = new THREE.SpotLight(0xffffaa, 1000, 0, Math.PI / 16, 0.5);
                 spotlight.position.set(1.01, 0, 0.95 + 0.25);
                 spotlight.target = invis;
-                spotlight.castShadow = true;
+                // spotlight.castShadow = true;
                 dingus.add(spotlight);
 
                 // const spotlightHelper = new THREE.SpotLightHelper( spotlight );
@@ -239,15 +239,15 @@
                 }
             }
 
-            // const lighthouse = new Lighthouse();
+            const lighthouse = new Lighthouse();
             // const lighthouse2 = new Lighthouse();
             // lighthouse2.speed = 1/1000;
             // lighthouse2.lighthouse.position.set(-50,0,0);
-            for (let i = 0; i < 4; i++){
-                let l = new Lighthouse();
-                l.lighthouse.position.set(-75 + i*75,0,0);
-                l.speed = 1/2000 + Math.random()/1000;
-            }
+            // for (let i = 0; i < 4; i++){
+            //     let l = new Lighthouse();
+            //     l.lighthouse.position.set(-75 + i*75,0,0);
+            //     l.speed = 1/2000 + Math.random()/1000;
+            // }
 
             const sun = new THREE.DirectionalLight(0xffffee, 0.7);
             sun.position.set(20, 0, 100);

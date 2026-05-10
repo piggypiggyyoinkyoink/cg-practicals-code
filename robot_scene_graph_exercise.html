@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exercise: Reconstruct the Robot</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #1a1a1a;}
+        canvas { display: block; }
+        #ui { position: fixed; top: 10px; left: 10px; color: white; font-family: Arial; }
+        .panel { background: rgba(0,0,0,0.8); padding: 15px; border-radius: 5px; margin-bottom: 10px;}
+        button { background: #E91E63; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 3px; font-weight: bold;}
+        button:hover { background: #C2185B; }
+        #helpModal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; color: white; padding: 25px; border-radius: 8px; font-family: Arial; box-shadow: 0 0 20px rgba(0,0,0,0.8); z-index: 100;}
+        #helpModal h3 { margin-top: 0; color: #4CAF50; border-bottom: 1px solid #444; padding-bottom: 10px;}
+        #helpModal li { margin-bottom: 10px; line-height: 1.5; color: #ddd;}
+        code { background: #111; padding: 2px 6px; border-radius: 3px; color: #ffeb3b;}
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div class="panel">
+            <strong>STUDENT EXERCISE</strong><br><br>
+            <strong>Controls:</strong><br>
+            W/S/A/D to Move
+        </div>
+        <button onclick="document.getElementById('helpModal').style.display='block'">Need Hints?</button>
+    </div>
+
+    
+    <div id="helpModal">
+        <h3>Hints for Reconstruction</h3>
+        <ul>
+            <li>Three.js uses a tree hierarchy. Link objects using <code>parent.add(child);</code></li>
+            <li>Since the WASD keys move the <code>head</code>, the head acts as the "root" parent.</li>
+            <li>Once attached, a child's <code>position</code> becomes relative to its parent's center, not the world.</li>
+            <li>You will need to manually reset the local coordinates (e.g., <code>torso.position.set(0, -1.15, 0);</code>) after linking so they snap to the correct anatomical spot.</li>
+            <li>Don't forget to reset the <code>rotation</code> of your components to 0 so they face forward!</li>
+        </ul>
+        <button onclick="document.getElementById('helpModal').style.display='none'" style="background: #4CAF50; width: 100%; margin-top: 10px;">Close Hints</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script>
+        let scene, camera, renderer, controls;
+        let head, torso, leftArm, rightArm, leftLeg, rightLeg;
+        let isWalking = false, moveSpeed = 0.1, turnSpeed = 0.05, time = 0;
+        let keysDown = new Set();
+        init();
+
+        function createLimb(material) {
+            const limb = new THREE.Group();
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 1.2, 0.3), material);
+            mesh.position.y = -0.6;
+            limb.add(mesh);
+            return limb;
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x1a1a1a);
+            document.body.appendChild(renderer.domElement);
+
+            camera.position.set(0, 5, 8);
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0x404040));
+            const light = new THREE.DirectionalLight(0xffffff, 0.8);
+            light.position.set(1, 2, 1);
+            scene.add(light);
+            scene.add(new THREE.GridHelper(20, 20));
+
+            const headArmMat = new THREE.MeshPhongMaterial({ color: 0xffcc99 }); 
+            const torsoMat = new THREE.MeshPhongMaterial({ color: 0xff0000 }); 
+            const legMat = new THREE.MeshPhongMaterial({ color: 0x0000ff }); 
+            const eyeMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
+
+            head = new THREE.Group();
+            const headMesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), headArmMat);
+            
+            const eyeGeo = new THREE.CircleGeometry(0.12, 32);
+            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+            const rightEye = leftEye.clone();
+            leftEye.position.set(-0.2, 0.1, 0.41); rightEye.position.set(0.2, 0.1, 0.41);
+            
+            head.add(headMesh, leftEye, rightEye);
+            head.position.set(3.171, 0.430, 0.920);
+            head.rotation.set(-3.142, 0.107, -3.142);
+            scene.add(head);
+
+            torso = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.5, 0.8), torsoMat);
+            torso.position.set(-5.736, 0.610, -2.428);
+            torso.rotation.set(-0.687, 0.540, -2.463);
+            scene.add(torso);
+
+            leftArm = createLimb(headArmMat); leftArm.position.set(4.003, 0.615, -3.194);
+            leftArm.rotation.set(3.140, 0.340, 0.326); scene.add(leftArm);
+            rightArm = createLimb(headArmMat); rightArm.position.set(-3.845, 0.616, -2.898);
+            rightArm.rotation.set(0.585, 0.384, 0.437); scene.add(rightArm);
+            leftLeg = createLimb(legMat); leftLeg.position.set(1.693, 0.613, 0.328);
+            leftLeg.rotation.set(0.832, 0.036, 2.549); scene.add(leftLeg);
+            rightLeg = createLimb(legMat); rightLeg.position.set(-0.250, 0.606, -4.527);
+            rightLeg.rotation.set(-2.027, 0.930, -1.053); scene.add(rightLeg);
+            
+            function reconstructRobot() {
+                head.rotation.set(0,0,0); torso.rotation.set(0,0,0); leftArm.rotation.set(0,0,0); rightArm.rotation.set(0,0,0); leftLeg.rotation.set(0,0,0); rightLeg.rotation.set(0,0,0);
+                torso.position.set(0, -1.15, 0); leftArm.position.set(0.75, 0.6, 0); rightArm.position.set(-0.75, 0.6, 0); leftLeg.position.set(0.4, -0.6, 0); rightLeg.position.set(-0.4, -0.6, 0);
+                head.add(torso);
+                torso.add(leftArm);
+                torso.add(rightArm);
+                torso.add(leftLeg);
+                torso.add(rightLeg);
+                head.position.set(0, 3, 0);
+                
+            
+            }
+
+            reconstructRobot(); 
+
+            setupKeyControls();
+            animate();
+        }
+
+        
+        function setupKeyControls() {
+
+            window.addEventListener("keydown", (event) => {
+                if (event.key.toLowerCase() === "a") {
+                    keysDown.add("a");
+                } if (event.key.toLowerCase() === "d") {
+                    keysDown.add("d");
+                } if (event.key.toLowerCase() === "w") {
+                    keysDown.add("w");
+                } if (event.key.toLowerCase() === "s") {
+                    keysDown.add("s");
+                } if (event.key.toLowerCase() === " ") {
+                    kapow();
+                }
+            });
+            window.addEventListener("keyup", (event) => {
+                if (event.key.toLowerCase() === "a") {
+                    keysDown.delete("a");
+                } if (event.key.toLowerCase() === "d") {
+                    keysDown.delete("d");
+                } if (event.key.toLowerCase() === "w") {
+                    keysDown.delete("w");
+                } if (event.key.toLowerCase() === "s") {
+                    keysDown.delete("s");
+                }
+            });
+        }
+        // function move(){
+            
+        // }
+        
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (keysDown.has('w')) {
+                head.position.x += Math.sin(head.rotation.y) * moveSpeed; head.position.z += Math.cos(head.rotation.y) * moveSpeed; isWalking = true;
+            } else if (keysDown.has('s')) {
+                head.position.x -= Math.sin(head.rotation.y) * moveSpeed; head.position.z -= Math.cos(head.rotation.y) * moveSpeed; isWalking = true;
+            } else {
+                isWalking = false;
+                leftLeg.rotation.x = 0; rightLeg.rotation.x = 0; leftArm.rotation.x = 0; rightArm.rotation.x = 0;
+            }
+            if (keysDown.has('a') && !keysDown.has('d')) {
+                head.rotation.y += turnSpeed;
+            } else if (keysDown.has('d') && !keysDown.has('a')) {
+                head.rotation.y -= turnSpeed;
+            }
+            if (isWalking) {
+                time += 0.15;
+                leftLeg.rotation.x = Math.sin(time) * 0.8; rightLeg.rotation.x = -Math.sin(time) * 0.8;
+                leftArm.rotation.x = -Math.sin(time) * 0.8; rightArm.rotation.x = Math.sin(time) * 0.8;
+            }
+            renderer.render(scene, camera);
+            controls.update();
+        }
+
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+    </script>
+</body>
+</html>
